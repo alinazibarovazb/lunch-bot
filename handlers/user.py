@@ -113,5 +113,3 @@ async def handle_receipt_photo(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
 ---
 
-Теперь `__init__.py` — создай файл `handlers/__init__.py` и оставь его **полностью пустым**, просто нажми Commit changes ничего не вставляя. GitHub не даст сохранить пустой файл, поэтому вставь один пробел:
-```
