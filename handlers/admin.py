@@ -49,8 +49,8 @@ async def cmd_set_menu(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
     if not ctx.args:
         return await update.message.reply_text(
-            "Формат (название - цена - количество):\n"
-            "/setmenu\nСуп - 300 - 10\nПлов - 500 - 8\nСалат - 400 - 15"
+            "Формат (название - цена - количество, количество опционально):\n"
+            "/setmenu\nСуп - 300 - 10\nПлов - 500 - 8\nСалат - 400"
         )
 
     raw = " ".join(ctx.args)
@@ -60,23 +60,14 @@ async def cmd_set_menu(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
     items = []
     for line in lines:
-        # Формат: Название - цена - количество
-        m = re.match(r"^(.+?)\s*[-–—]\s*(\d+)\s*[-–—]\s*(\d+)\s*$", line)
+        # Парсим строку: название - цена - (опционально) количество
+        m = re.match(r"^(.+?)\s*[-–—]\s*(\d+)\s*(?:[-–—]\s*(\d+))?\s*$", line)
         if m:
             items.append({
                 "name": m.group(1).strip(),
                 "price": int(m.group(2)),
-                "quantity": int(m.group(3))
+                "quantity": int(m.group(3)) if m.group(3) else 99
             })
-        else:
-            # Старый формат без количества
-            m2 = re.match(r"^(.+?)\s*[-–—]\s*(\d+)\s*$", line)
-            if m2:
-                items.append({
-                    "name": m2.group(1).strip(),
-                    "price": int(m2.group(2)),
-                    "quantity": 99
-                })
 
     if not items:
         return await update.message.reply_text(
