@@ -109,7 +109,6 @@ async def handle_receipt_photo(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             )
         except Exception:
             pass
-```
 
 ---
 
