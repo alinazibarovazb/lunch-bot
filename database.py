@@ -24,7 +24,7 @@ def init_db():
             date TEXT NOT NULL,
             item_name TEXT NOT NULL,
             price INTEGER NOT NULL,
-            quantity INTEGER NOT NULL DEFAULT 99,
+            quantity INTEGER NOT NULL DEFAULT 99
         );
 
         CREATE TABLE IF NOT EXISTS orders (
