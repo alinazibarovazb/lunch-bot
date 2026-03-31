@@ -68,19 +68,15 @@ def set_setting(key: str, value: str):
 # ── Admins ─────────────────────────────────────────────────────────────────────
 
 def is_admin(user_id: int) -> bool:
-    # First admin ever — stored in settings as FIRST_ADMIN_ID env var
     first_admin = os.environ.get("ADMIN_ID")
     if first_admin and str(user_id) == str(first_admin):
+        return True
+    second_admin = os.environ.get("ADMIN_ID_2")
+    if second_admin and str(user_id) == str(second_admin):
         return True
     with get_conn() as conn:
         row = conn.execute("SELECT 1 FROM admins WHERE user_id=?", (user_id,)).fetchone()
         return row is not None
-
-
-def add_admin(user_id: int, username: str = None):
-    with get_conn() as conn:
-        conn.execute("INSERT OR IGNORE INTO admins(user_id, username) VALUES(?,?)", (user_id, username))
-        conn.commit()
 
 
 # ── Menu ───────────────────────────────────────────────────────────────────────
