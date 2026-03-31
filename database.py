@@ -23,7 +23,7 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             date TEXT NOT NULL,
             item_name TEXT NOT NULL,
-            price INTEGER NOT NULL
+            price INTEGER NOT NULL,
             quantity INTEGER NOT NULL DEFAULT 99,
         );
 
