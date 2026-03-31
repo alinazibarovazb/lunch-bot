@@ -82,15 +82,29 @@ def is_admin(user_id: int) -> bool:
 # ── Menu ───────────────────────────────────────────────────────────────────────
 
 def set_menu(items: list[dict], day: str = None):
-    """items = [{'name': str, 'price': int}]"""
+    """items = [{'name': str, 'price': int, 'quantity': int}]"""
     day = day or date.today().isoformat()
     with get_conn() as conn:
         conn.execute("DELETE FROM menu WHERE date=?", (day,))
         conn.executemany(
-            "INSERT INTO menu(date, item_name, price) VALUES(?,?,?)",
-            [(day, i["name"], i["price"]) for i in items]
+            "INSERT INTO menu(date, item_name, price, quantity) VALUES(?,?,?,?)",
+            [(day, i["name"], i["price"], i.get("quantity", 99)) for i in items]
         )
         conn.commit()
+
+
+def get_menu_item_remaining(menu_item_id: int, day: str = None) -> int:
+    """Возвращает сколько порций осталось"""
+    day = day or date.today().isoformat()
+    with get_conn() as conn:
+        item = conn.execute("SELECT quantity FROM menu WHERE id=?", (menu_item_id,)).fetchone()
+        if not item:
+            return 0
+        sold = conn.execute(
+            "SELECT COUNT(*) as cnt FROM orders WHERE date=? AND menu_item_id=? AND status != 'cancelled'",
+            (day, menu_item_id)
+        ).fetchone()
+        return item["quantity"] - (sold["cnt"] if sold else 0)
 
 
 def get_menu(day: str = None) -> list:
