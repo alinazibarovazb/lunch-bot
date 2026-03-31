@@ -17,6 +17,11 @@ async def button_callback(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         if not item:
             await query.answer("Позиция не найдена.", show_alert=True)
             return
+            # Проверяем остаток
+        remaining = db.get_menu_item_remaining(menu_item_id)
+        if remaining <= 0:
+            await query.answer("😔 К сожалению, эта позиция закончилась!", show_alert=True)
+            return
         order_id = db.create_order(
             user_id=user.id,
             username=user.username or "",
