@@ -90,28 +90,28 @@ async def handle_receipt_photo(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     )
 
     admin_ids = []
-for key in ["ADMIN_ID", "ADMIN_ID_2", "ADMIN_ID_3"]:
-    val = os.environ.get(key)
-    if val:
-        admin_ids.append(val)
+        for key in ["ADMIN_ID", "ADMIN_ID_2", "ADMIN_ID_3"]:
+            val = os.environ.get(key)
+            if val:
+                admin_ids.append(val)
 
-if admin_ids:
-    keyboard = InlineKeyboardMarkup([[
-        InlineKeyboardButton("✅ Подтвердить оплату", callback_data=f"confirm:{order['id']}"),
-        InlineKeyboardButton("❌ Отклонить", callback_data=f"reject:{order['id']}")
-    ]])
-    caption = (
-        f"💳 Новый чек об оплате!\n"
-        f"👤 {user.full_name} (@{user.username or '-'})\n"
-        f"🍱 {order['item_name']} — {order['price']} руб"
-    )
-    for admin_id in admin_ids:
-        try:
-            await ctx.bot.send_photo(
-                chat_id=int(admin_id),
-                photo=file_id,
-                caption=caption,
-                reply_markup=keyboard
+        if admin_ids:
+            keyboard = InlineKeyboardMarkup([[
+                InlineKeyboardButton("✅ Подтвердить оплату", callback_data=f"confirm:{order['id']}"),
+                InlineKeyboardButton("❌ Отклонить", callback_data=f"reject:{order['id']}")
+            ]])
+            caption = (
+                f"💳 Новый чек об оплате!\n"
+                f"👤 {user.full_name} (@{user.username or '-'})\n"
+                f"🍱 {order['item_name']} — {order['price']} руб"
             )
-        except Exception:
-            pass
+            for admin_id in admin_ids:
+                try:
+                    await ctx.bot.send_photo(
+                        chat_id=int(admin_id),
+                        photo=file_id,
+                        caption=caption,
+                        reply_markup=keyboard
+                    )
+                except Exception:
+                    pass
