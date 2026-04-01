@@ -1,9 +1,11 @@
 import logging
 import os
 import threading
+import time
+import urllib.request
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQueryHandler, filters, ContextTypes
+from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQueryHandler, filters
 
 from database import init_db
 from handlers.admin import (
@@ -35,6 +37,21 @@ def run_health_server():
     server.serve_forever()
 
 
+def self_ping():
+    """Пингует сам себя каждые 10 минут чтобы Render не усыплял сервис"""
+    url = os.environ.get("RENDER_EXTERNAL_URL")
+    if not url:
+        logger.info("RENDER_EXTERNAL_URL не задан, self-ping отключён")
+        return
+    while True:
+        time.sleep(600)  # 10 минут
+        try:
+            urllib.request.urlopen(url, timeout=10)
+            logger.info("Self-ping OK")
+        except Exception as e:
+            logger.warning(f"Self-ping failed: {e}")
+
+
 def main():
     token = os.environ.get("BOT_TOKEN")
     if not token:
@@ -42,8 +59,8 @@ def main():
 
     init_db()
 
-    # Запускаем веб-сервер в фоне чтобы Render не убивал процесс
     threading.Thread(target=run_health_server, daemon=True).start()
+    threading.Thread(target=self_ping, daemon=True).start()
 
     app = Application.builder().token(token).build()
 
@@ -59,7 +76,8 @@ def main():
     app.add_handler(MessageHandler(filters.PHOTO & filters.ChatType.PRIVATE, handle_receipt_photo))
 
     logger.info("Bot started")
-    app.run_polling()
+    app.run_polling(allowed_updates=Update.ALL_TYPES)
+
 
 if __name__ == "__main__":
     main()
